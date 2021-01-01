@@ -1,21 +1,34 @@
 #!/usr/bin/env bash
 
-source scripts/l4t_version.sh
+# check the parameters
+if [ ${#1} -lt 1 ] || [ ${#2} -lt 1 ]
+then
+  echo "You need to specify two paramters:"
+  echo "1. what to push - 'pytorch', 'tensorflow', 'ml' or 'all';"
+  echo "2. where to push it - '<registry-url>/<account>'."
+  echo ""
+  echo "Example: './scripts/docker_push.sh pytorch docker.io/edgyr'"
+  echo "There are no defaults. You need to be logged into the"
+  echo "destination registry with push access."
+  exit -20
+fi
 
-NGC_GROUP="nvcr.io/ea-linux4tegra"
-CONTAINERS=${1:-"all"}
+CONTAINERS=$1
+DESTINATION=$2
+
+source scripts/l4t_version.sh
 
 push_retag() 
 {
 	local src_tag=$1
 	local dst_tag=$2
 	
-	sudo docker rmi $NGC_GROUP/$dst_tag
-	sudo docker tag $src_tag $NGC_GROUP/$dst_tag
+	sudo docker rmi $DESTINATION/$dst_tag
+	sudo docker tag $src_tag $DESTINATION/$dst_tag
 	
-	echo "pushing container $src_tag => $NGC_GROUP/$dst_tag"
-	sudo docker push $NGC_GROUP/$dst_tag
-	echo "done pushing $NGC_GROUP/$dst_tag"
+	echo "pushing container $src_tag => $DESTINATION/$dst_tag"
+	sudo docker push $DESTINATION/$dst_tag
+	echo "done pushing $DESTINATION/$dst_tag"
 }
 
 push() 
